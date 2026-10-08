@@ -1,7 +1,7 @@
 {
   "name": "dubstrata-situation-monitor",
   "version": "1.0.0",
-  "description": "Geopolitical Situation Monitor & Business Agent Hub using Dubstrata MCP and Polymarket",
+  "description": "Geopolitical Situation Monitor & Business Multi-Agent Hub powered by Dubstrata MCP Causal Graph RAG",
   "main": "dist/index.js",
   "scripts": {
     "build:frontend": "cd src/dashboard/frontend && npm run build",
@@ -10,14 +10,16 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "postinstall": "npm run install:frontend",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "tsx src/test/engine.test.ts"
   },
   "keywords": [
-    "trading",
-    "agent",
-    "polymarket",
+    "geopolitical",
+    "risk-monitoring",
+    "multi-agent",
     "mcp",
-    "dubstrata"
+    "dubstrata",
+    "causal-graph",
+    "rag"
   ],
   "author": "Muzi Khuzwayo",
   "license": "MIT",

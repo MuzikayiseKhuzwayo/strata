@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata | Geopolitical Situation Monitor & Multi-Agent Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070709;
+      --card-bg: rgba(18, 18, 24, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: rgba(99, 102, 241, 0.4);
+      --accent-indigo: #6366f1;
+      --accent-indigo-glow: rgba(99, 102, 241, 0.25);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.2);
+      --accent-coral: #f43f5e;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Ambient Glow Backdrops */
+    .glow-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.35;
+      animation: float 20s infinite alternate ease-in-out;
+    }
+
+    .glow-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+      top: -150px;
+      left: -150px;
+    }
+
+    .glow-2 {
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, #10b981 0%, transparent 70%);
+      bottom: -200px;
+      right: -200px;
+      animation-delay: -7s;
+    }
+
+    .glow-3 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #f43f5e 0%, transparent 70%);
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.15;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(40px) scale(1.08); }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Top Navigation */
+    header {
+      padding: 1.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      box-shadow: 0 0 20px var(--accent-indigo-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .btn-github {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-github:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: #a5b4fc;
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    .hero-badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 750px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #fff;
+      padding: 0.85rem 1.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 0 30px var(--accent-indigo-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      padding: 0.85rem 1.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Terminal Showcase Box */
+    .cockpit-preview {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      margin-bottom: 5rem;
+    }
+
+    .cockpit-header {
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .cockpit-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+    }
+
+    .cockpit-body {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      text-align: left;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .log-tag {
+      color: var(--accent-indigo);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .log-tag.visionary { color: #6366f1; }
+    .log-tag.producer { color: #3b82f6; }
+    .log-tag.seller { color: #10b981; }
+    .log-tag.controller { color: #f43f5e; }
+    .log-tag.mcp { color: #eab308; }
+
+    .log-text {
+      color: #e4e4e7;
+    }
+
+    /* Diátaxis Quadrants Grid */
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-title h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+
+    .diataxis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 6rem;
+    }
+
+    @media (max-width: 768px) {
+      .diataxis-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+    }
+
+    .quadrant-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      backdrop-filter: blur(16px);
+      transition: all 0.25s ease;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .quadrant-card:hover {
+      border-color: var(--card-border-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px -10px var(--accent-indigo-glow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+    }
+
+    .card-type {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .type-tutorial { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .type-howto { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .type-reference { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .type-explanation { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .card-links {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.85rem;
+    }
+
+    .card-link-item {
+      font-size: 0.8rem;
+      color: #a5b4fc;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .card-link-item:hover {
+      text-decoration: underline;
+    }
+
+    /* Core Architectural Highlights */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 6rem;
+    }
+
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      backdrop-filter: blur(16px);
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 3rem 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow Backdrops -->
+  <div class="glow-bg">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+    <div class="glow-orb glow-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrap">
+      <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation" class="brand">
+        <div class="brand-logo">S</div>
+        <div class="brand-title">Strata</div>
+        <span class="brand-badge">v1.0.0</span>
+      </a>
+      <div class="nav-links">
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/tutorials/quickstart.md">Quickstart</a>
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/reference/api_reference.md">API Specs</a>
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/explanation/architecture_overview.md">Architecture</a>
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation" class="btn-github">
+          <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="container">
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="hero-badge-pulse"></span>
+        Dubstrata MCP Standard 1.3.0 Compatible
+      </div>
+      <h1>Geopolitical Situation Monitor & Autonomous Agent Hub</h1>
+      <p>
+        Screen international macro risk cascades, inquire causal knowledge graphs via the Dubstrata MCP standard, enforce deterministic compliance rules, and orchestrate 5 specialized subagents in an interactive glassmorphic cockpit.
+      </p>
+      <div class="hero-actions">
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/tutorials/quickstart.md" class="btn-primary">
+          Get Started in 10 Min →
+        </a>
+        <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation" class="btn-secondary">
+          View Repository
+        </a>
+      </div>
+
+      <!-- Cockpit Terminal Live Simulation -->
+      <div class="cockpit-preview">
+        <div class="cockpit-header">
+          <div class="window-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="cockpit-tabs">
+            <button class="tab-btn active" onclick="switchTab('debate')">Agent Hub Debate</button>
+            <button class="tab-btn" onclick="switchTab('graph')">Causal Graph RAG</button>
+            <button class="tab-btn" onclick="switchTab('audit')">Cryptographic Audit</button>
+          </div>
+          <span style="font-size: 0.7rem; color: var(--accent-green); font-family: monospace;">● SSE LIVE</span>
+        </div>
+        <div class="cockpit-body" id="cockpitTerminal">
+          <!-- Dynamic Content Populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Diátaxis Quadrants Section -->
+    <section>
+      <div class="section-title">
+        <h2>Boundary-First Documentation Matrix</h2>
+        <p>Comprehensive guides organized according to the Diátaxis framework for zero doc drift.</p>
+      </div>
+
+      <div class="diataxis-grid">
+        <!-- Quadrant 1: Tutorials -->
+        <div class="quadrant-card">
+          <div class="card-header">
+            <span class="card-icon">🚀</span>
+            <span class="card-type type-tutorial">Tutorials</span>
+          </div>
+          <h3 class="card-title">Zero-to-One Onboarding</h3>
+          <p class="card-desc">
+            A 10-minute beginner guide taking you from a fresh clone to a running cockpit in simulated offline mode, ready for live MCP connection.
+          </p>
+          <div class="card-links">
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/tutorials/quickstart.md" class="card-link-item">
+              → 10-Minute Zero-to-One Quickstart Guide
+            </a>
+          </div>
+        </div>
+
+        <!-- Quadrant 2: How-To Guides -->
+        <div class="quadrant-card">
+          <div class="card-header">
+            <span class="card-icon">🛠️</span>
+            <span class="card-type type-howto">How-To Guides</span>
+          </div>
+          <h3 class="card-title">Operational Recipes</h3>
+          <p class="card-desc">
+            Step-by-step problem-oriented runbooks for configuring subagents, hooking live cloud graphs, and running verification audits.
+          </p>
+          <div class="card-links">
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/how-to/connect_dubstrata_mcp.md" class="card-link-item">
+              → Connect Dubstrata MCP Causal Graph
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/how-to/configure_agent_directives.md" class="card-link-item">
+              → Configure Agent Directives & SOPs
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/how-to/investigate_geopolitical_signals.md" class="card-link-item">
+              → Investigate Geopolitical Signals JIT
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/how-to/run_verification_and_audits.md" class="card-link-item">
+              → Run Verification & Audit Ledger Checks
+            </a>
+          </div>
+        </div>
+
+        <!-- Quadrant 3: Reference -->
+        <div class="quadrant-card">
+          <div class="card-header">
+            <span class="card-icon">📖</span>
+            <span class="card-type type-reference">Reference</span>
+          </div>
+          <h3 class="card-title">Technical Specifications</h3>
+          <p class="card-desc">
+            Machine-accurate REST API routes, Server-Sent Events protocols, CLI flags, environment variables, and on-disk JSON/JSONL schemas.
+          </p>
+          <div class="card-links">
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/reference/api_reference.md" class="card-link-item">
+              → Unified REST API Specification
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/reference/cli_and_env_reference.md" class="card-link-item">
+              → CLI Flags & Environment Configuration
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/reference/data_schemas_and_storage.md" class="card-link-item">
+              → Data Schemas & Storage Architecture
+            </a>
+          </div>
+        </div>
+
+        <!-- Quadrant 4: Explanation -->
+        <div class="quadrant-card">
+          <div class="card-header">
+            <span class="card-icon">💡</span>
+            <span class="card-type type-explanation">Explanation</span>
+          </div>
+          <h3 class="card-title">Architecture & Philosophy</h3>
+          <p class="card-desc">
+            Deep-dives into why directional causal graphs beat pure semantic vector search, how the 5-agent SOP model operates, and cryptographic auditability.
+          </p>
+          <div class="card-links">
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/explanation/architecture_overview.md" class="card-link-item">
+              → Architecture Overview & Causal Graph RAG
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/explanation/multi_agent_governance.md" class="card-link-item">
+              → Multi-Agent Governance & SOP Alignment
+            </a>
+            <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/docs/explanation/cryptographic_compliance.md" class="card-link-item">
+              → Cryptographic Compliance & Audit Trails
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Highlights -->
+    <section>
+      <div class="section-title">
+        <h2>Engineered for High-Consequence Desks</h2>
+        <p>Built with zero tolerance for unconstrained drift, hallucinations, or unverified logs.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>⚡ Causal Single Source of Truth</h3>
+          <p>
+            Grounds risk forecasts in directional Structural Vector Autoregression (SVAR) loops rather than noisy correlation from vector embeddings.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h3>🤖 5 Operational Subagent Roles</h3>
+          <p>
+            Enforces organizational division of labor between Visionary, Producer, Seller, Controller, and Systematiser guided by Standard Operating Procedures.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h3>🔐 Chained SHA-256 Audit Trail</h3>
+          <p>
+            Every generated brief, prompt, and compliance verification is permanently recorded in an append-only cryptographic ledger.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom: 0.5rem;">
+        Strata is open-source software maintained by <a href="https://github.com/MuzikayiseKhuzwayo">Muzi Khuzwayo</a>.
+      </p>
+      <p>
+        Licensed under the <a href="https://github.com/MuzikayiseKhuzwayo/dubstrata-investigation/blob/main/LICENSE">MIT License</a>. Verified canonical distribution.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Terminal Simulator Script -->
+  <script>
+    const tabsData = {
+      debate: [
+        { tag: 'DAEMON', type: 'mcp', text: 'Critical Macro Anomaly Detected: "Red Sea Shipping Disruption Escalates".' },
+        { tag: 'VISIONARY (SOP-STR-001)', type: 'visionary', text: 'We must decouple our capital exposure from standard market contagion loops. SVAR loops reveal persistent settlement delay across downstream channels.' },
+        { tag: 'PRODUCER (SOP-OPS-004)', type: 'producer', text: 'FastAPI gateway latency benchmarks remain locked at 4.2ms. Checking sprint backlog WIP limits to deploy counter-cyclical hedges.' },
+        { tag: 'SELLER (SOP-SLS-001)', type: 'seller', text: 'Tier-1 quantitative trading desks are requesting JIT causal reports. Contracts validate $0.005 per query with instant USDC micro-settlement.' },
+        { tag: 'CONTROLLER (SOP-FIN-001)', type: 'controller', text: 'Audit verification confirms zero double-spends. All cryptographic compliance mandates pass EIP-712 verification thresholds.' }
+      ],
+      graph: [
+        { tag: 'MCP_INQUIRY', type: 'mcp', text: 'Tool Call: query_graph(query: "Global Energy Corridors")' },
+        { tag: 'CAUSAL_NODE', type: 'visionary', text: 'Node: [Red Sea Corridor] -> TRIGGERS_SVAR_PRESSURE -> [Bunker Fuel Latency: 4.2ms]' },
+        { tag: 'CAUSAL_EDGE', type: 'producer', text: 'Edge: [Bunker Fuel Latency] -> RESTRICTS_CAPITAL_FLOW -> [Foreign Exchange Settlement]' },
+        { tag: 'METRICS', type: 'seller', text: 'Decoupling Index: 0.84 | Historical Confidence: 0.91 | Conflict Status: 0 Divergences' }
+      ],
+      audit: [
+        { tag: 'LEDGER_ENTRY', type: 'controller', text: 'Append SHA-256 Chained Hash: [084a1859e21...]' },
+        { tag: 'COMPLIANCE', type: 'seller', text: 'Rule Checks: Banned Clichés: 0 | Pacing: <250 char/p | Visceral Verbs: VALIDATED' },
+        { tag: 'STATE_CHAIN', type: 'producer', text: 'PreviousHash: [3d8e92f1...] -> VerificationHash: [73ef76f2...] (UNBROKEN)' }
+      ]
+    };
+
+    function renderTab(tabKey) {
+      const container = document.getElementById('cockpitTerminal');
+      const lines = tabsData[tabKey] || tabsData.debate;
+      container.innerHTML = lines.map(line => `
+        <div class="log-line">
+          <span class="log-tag ${line.type}">[${line.tag}]</span>
+          <span class="log-text">${line.text}</span>
+        </div>
+      `).join('');
+    }
+
+    function switchTab(tabKey) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderTab(tabKey);
+    }
+
+    // Initialize default tab
+    renderTab('debate');
+  </script>
+</body>
+</html>

@@ -4,21 +4,38 @@ node_modules/
 # Compiled outputs
 dist/
 dist-dashboard/
+.vite/
+*.tsbuildinfo
+
+# Test & coverage
+coverage/
 
 # Log files
 logs/*
 !logs/.gitkeep
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Runtime data (local state, database files)
 data/*
 !data/.gitkeep
+!data/agents/crm_accounts.csv
+!data/agents/crm_opportunities.csv
+!data/agents/crm_pain_points.csv
 
 # Environment variables & secrets
 .env
-.env.production
-.env.local
+.env.*
+!.env.example
+
+# Temporary / Scratch
+scratch/
+tmp/
+temp/
 
 # OS files
 .DS_Store
 Thumbs.db
+

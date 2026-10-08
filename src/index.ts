@@ -49,13 +49,10 @@ async function main() {
   // 3. Start premium dashboard visualizer
   logger.info('Spawning companion visualizer server...');
   startDashboardServer(
-    undefined, // Verifier is now compliance-based, handled inside harness
     harness.auditLogger,
-    undefined, // clob is deleted
-    undefined, // gamma is deleted
     harness.dubstrata,
     harness,
-    daemon as any
+    daemon
   );
 
   logger.info('================================================================');

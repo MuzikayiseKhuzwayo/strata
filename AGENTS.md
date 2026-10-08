@@ -11,11 +11,11 @@ This document contains repository-level instructions, rules, and style requireme
 * **Outages & Errors**: If the Dubstrata MCP server returns connection errors (e.g., `NameResolutionError`, `HTTPConnectionPool`), the agent must immediately suspend trading activity and place the market on **`HOLD`** with $0.00 allocated. **Do not trade under absolute uncertainty.**
 
 ### 🔒 Cryptographic Compliance Mandates
-* **Rule**: All transactions must be verified using the digital EIP-712 compliance verifier (`src/dubstrata/mandateVerifier.ts`).
-* **Limitations**: Respect all digital signature limits, including `allowedCategories`, `maxPositionSize`, and `dailyLimit`. Any trade violating these boundaries must be blocked and recorded in the audit trail ledger as `BLOCKED_BY_MANDATE`.
+* **Rule**: All generated decision briefs and strategic dispatches must be verified using the deterministic compliance verifier (`src/content/complianceVerifier.ts`) and recorded in the SHA-256 chained audit ledger (`src/dubstrata/auditLogger.ts`).
+* **Limitations**: Respect all copy and pacing rules: zero banned clichés (`delve`, `tapestry`, etc.), paragraph length under 250 characters, visceral active verbs required, and Grok summary capsules. Non-compliant outputs must be rejected or retried.
 
 ### 🛡️ Simulation-Mode Fallback Guard
-* **Rule**: Unless `SIMULATION_MODE` is explicitly set to `"false"` in `.env`, all trades must go through the simulated virtual order book (`src/polymarket/clobClient.ts`) to avoid exposing real USDC capital to risk.
+* **Rule**: Unless external API keys (`DUBSTRATA_API_KEY`, `GEMINI_API_KEY`) are explicitly configured, the engine must execute via deterministic local simulation fallbacks (`src/dubstrata/client.ts`, `src/utils/llmManager.ts`) to ensure 100% reliable offline boots and safe dry-runs.
 
 ---
 

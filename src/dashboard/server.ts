@@ -13,10 +13,7 @@ import { eventBroker } from '../utils/eventBroker';
 import { AgentChatManager } from '../utils/agentChatManager';
 
 export function startDashboardServer(
-  complianceVerifier: any, // Ignored, handled in harness
   auditLogger: AuditLogger,
-  clobClient: any, // Ignored
-  gammaClient: any, // Ignored
   dubstrata: DubstrataMCPClient,
   harness: TradingAgentHarness,
   daemon: Daemon
@@ -35,7 +32,26 @@ export function startDashboardServer(
 
   app.use(cors());
   app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
+
+  // Multi-path resilient static directory resolution (works in dev tsx and compiled dist)
+  const publicDirCandidates = [
+    path.join(__dirname, 'public'),
+    path.join(__dirname, '..', 'public'),
+    path.join(process.cwd(), 'src', 'dashboard', 'public'),
+    path.join(process.cwd(), 'dist', 'dashboard', 'public'),
+  ];
+  const publicDir = publicDirCandidates.find(d => fs.existsSync(d)) || path.join(__dirname, 'public');
+  app.use(express.static(publicDir));
+
+  // Mount static routes for generated reports and agent workspace assets
+  const reportsDir = path.join(process.cwd(), 'data', 'reports');
+  if (fs.existsSync(reportsDir)) {
+    app.use('/data/reports', express.static(reportsDir));
+  }
+  const agentsDir = path.join(process.cwd(), 'data', 'agents');
+  if (fs.existsSync(agentsDir)) {
+    app.use('/data/agents', express.static(agentsDir));
+  }
 
   // SSE clients registry
   const sseClients = new Set<express.Response>();
@@ -148,6 +164,39 @@ export function startDashboardServer(
   function saveContentAssets(assets: ContentAsset[]) {
     fs.writeFileSync(ASSETS_PATH, JSON.stringify(assets, null, 2), 'utf-8');
   }
+
+  // GET /api/content/assets - List all generated content briefs
+  app.get('/api/content/assets', (req, res) => {
+    try {
+      res.json(loadContentAssets());
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/content/assets/:id - Get specific asset by ID
+  app.get('/api/content/assets/:id', (req, res) => {
+    try {
+      const assets = loadContentAssets();
+      const asset = assets.find(a => a.id === req.params.id);
+      if (!asset) return res.status(404).json({ error: 'Asset not found.' });
+      res.json(asset);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // DELETE /api/content/assets/:id - Delete an asset
+  app.delete('/api/content/assets/:id', (req, res) => {
+    try {
+      const assets = loadContentAssets();
+      const filtered = assets.filter(a => a.id !== req.params.id);
+      saveContentAssets(filtered);
+      res.json({ success: true, count: filtered.length });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
 
 
@@ -425,9 +474,53 @@ export function startDashboardServer(
     res.json({ success: true, autoPilot: chatManager.getAutopilot() });
   });
 
-  // Wildcard SPA route
+  // GET /api/agents/brain-map - Retrieve current agent brain map & file registry
+  app.get('/api/agents/brain-map', (req, res) => {
+    try {
+      const brainMapPath = './data/agents/brain_map.json';
+      if (fs.existsSync(brainMapPath)) {
+        return res.json(JSON.parse(fs.readFileSync(brainMapPath, 'utf-8')));
+      }
+      res.json({});
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /api/agents/files/:filename - Safely stream agent workspace file
+  app.get('/api/agents/files/:filename', (req, res) => {
+    try {
+      const safeFilename = path.basename(req.params.filename);
+      const filePath = path.join(process.cwd(), 'data', 'agents', safeFilename);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found in agent sandbox.' });
+      }
+      const content = fs.readFileSync(filePath, 'utf-8');
+      res.send(content);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET /showcase - Product Benchmark Landing Page Showcase
+  app.get('/showcase', (req, res) => {
+    const showcasePath = path.join(process.cwd(), 'docs', 'index.html');
+    if (fs.existsSync(showcasePath)) {
+      return res.sendFile(showcasePath);
+    }
+    res.redirect('/');
+  });
+
+  // Wildcard SPA route with multi-path fallback
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    const indexPathCandidates = [
+      path.join(publicDir, 'index.html'),
+      path.join(process.cwd(), 'src', 'dashboard', 'public', 'index.html'),
+      path.join(process.cwd(), 'dist', 'dashboard', 'public', 'index.html'),
+      path.join(__dirname, 'public', 'index.html')
+    ];
+    const indexPath = indexPathCandidates.find(p => fs.existsSync(p)) || path.join(publicDir, 'index.html');
+    res.sendFile(indexPath);
   });
 
   app.listen(port, () => {
